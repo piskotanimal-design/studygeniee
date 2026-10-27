@@ -34,10 +34,6 @@ jobs:
           done
           
       - run: dart run build_runner build --delete-conflicting-outputs
-      
-      - name: Auto-fix Isar count error
-        run: |
-          sed -i 's/await isar\.flashcards\.filter()\.documentIdEqualTo(widget\.documentId)\.count();/(await isar.flashcards.filter().documentIdEqualTo(widget.documentId).findAll()).length;/g' lib/features/upload/document_detail_screen.dart
         
       - run: flutter build apk --release --split-per-abi
       
