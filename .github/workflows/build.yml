@@ -6,12 +6,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Download project zip
-        run: |
-          # Replace the link below with your actual direct link
-          curl -L -o studygenie.zip "YOUR_DIRECT_ZIP_LINK_HERE"
-          ls -la studygenie.zip
-
       - name: Unzip project
         run: |
           unzip -q studygenie.zip -d _unz
@@ -30,8 +24,6 @@ jobs:
           
       - name: Create Android shell
         run: flutter create --platforms android --org com.studygenie --project-name studygenie .
-        
-      # I removed the "Apply manifest and Gradle patches" step here because those files aren't in your zip.
           
       - run: flutter pub get
       
