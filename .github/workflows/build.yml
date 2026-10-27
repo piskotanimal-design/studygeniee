@@ -1,0 +1,43 @@
+name: Build APK
+on: workflow_dispatch
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unzip project
+        run: |
+          unzip -q studygenie.zip -d _unz
+          if [ -d "_unz/studygenie" ]; then cp -r _unz/studygenie/. .; else cp -r _unz/. .; fi
+          rm -rf _unz
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Create Android shell
+        run: flutter create --platforms android --org com.studygenie --project-name studygenie .
+      - name: Apply manifest and Gradle patches
+        run: |
+          cp android_overrides/AndroidManifest.xml android/app/src/main/AndroidManifest.xml
+          python3 tools/patch_android.py
+      - run: flutter pub get
+      - name: Patch Isar namespace
+        run: |
+          for f in $(find "$HOME/.pub-cache" -path "*isar_flutter_libs-*/android/build.gradle"); do
+            grep -q "namespace" "$f" || sed -i '0,/android {/s//android {\n    namespace "dev.isar.isar_flutter_libs"/' "$f"
+          done
+      - run: dart run build_runner build --delete-conflicting-outputs
+      
+      # THIS LINE FIXES THE DART ERROR AUTOMATICALLY
+      - name: Auto-fix Isar count error
+        run: sed -i 's/\.count();/.countSync();/g' lib/features/upload/document_detail_screen.dart
+        
+      - run: flutter build apk --release --split-per-abi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: studygenie-apk
+          path: build/app/outputs/flutter-apk/*.apk
