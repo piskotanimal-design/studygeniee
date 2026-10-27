@@ -8,7 +8,7 @@ jobs:
       
       - name: Download and Unzip
         run: |
-          curl -L -o studygenie.zip "https://gofile.io/d/QHVzYYkK"
+          curl -L -o studygenie.zip "https://files.catbox.moe/17hcyp.zip"
           unzip -q studygenie.zip -d _unz
           if [ -d "_unz/studygenie" ]; then cp -r _unz/studygenie/. .; else cp -r _unz/. .; fi
           rm -rf _unz studygenie.zip
